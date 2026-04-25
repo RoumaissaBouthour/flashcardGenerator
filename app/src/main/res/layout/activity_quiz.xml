@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <ProgressBar
+        android:id="@+id/quizProgress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:max="10"
+        android:progress="1" />
+
+    <TextView
+        android:id="@+id/tvQuestion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Question text goes here?"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="32dp" />
+
+    <RadioGroup
+        android:id="@+id/rgOptions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp">
+
+        <RadioButton
+            android:id="@+id/rbOption1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Option A"
+            android:padding="12dp" />
+
+        <RadioButton
+            android:id="@+id/rbOption2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Option B"
+            android:padding="12dp" />
+
+        <RadioButton
+            android:id="@+id/rbOption3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Option C"
+            android:padding="12dp" />
+
+        <RadioButton
+            android:id="@+id/rbOption4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Option D"
+            android:padding="12dp" />
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/btnSubmit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Submit Answer" />
+
+</LinearLayout>
