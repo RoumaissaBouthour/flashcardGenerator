@@ -9,19 +9,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.smartflashcard.R;
-// import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class LoginActivity extends AppCompatActivity {
     
     private EditText emailInput, passwordInput;
-    // private FirebaseAuth mAuth;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // mAuth = FirebaseAuth.getInstance();
+        mAuth = FirebaseAuth.getInstance();
         
         emailInput = findViewById(R.id.email_input);
         passwordInput = findViewById(R.id.password_input);
@@ -54,13 +54,6 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        // Bypassing Firebase Auth for now
-        Toast.makeText(this, "Logged in as " + email, Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-        startActivity(intent);
-        finish();
-
-        /*
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
@@ -72,17 +65,14 @@ public class LoginActivity extends AppCompatActivity {
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
-        */
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        /*
         if (mAuth.getCurrentUser() != null) {
             startActivity(new Intent(LoginActivity.this, HomeActivity.class));
             finish();
         }
-        */
     }
 }

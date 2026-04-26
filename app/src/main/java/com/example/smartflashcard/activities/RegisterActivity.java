@@ -9,19 +9,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.smartflashcard.R;
-// import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText nameInput, emailInput, passwordInput, confirmPasswordInput;
-    // private FirebaseAuth mAuth;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        // mAuth = FirebaseAuth.getInstance();
+        mAuth = FirebaseAuth.getInstance();
 
         nameInput = findViewById(R.id.name_input);
         emailInput = findViewById(R.id.email_input);
@@ -70,12 +70,6 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        // Bypassing Firebase Auth for now
-        Toast.makeText(RegisterActivity.this, "Registration successful!", Toast.LENGTH_SHORT).show();
-        startActivity(new Intent(RegisterActivity.this, HomeActivity.class));
-        finish();
-
-        /*
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
@@ -87,6 +81,5 @@ public class RegisterActivity extends AppCompatActivity {
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
-        */
     }
 }

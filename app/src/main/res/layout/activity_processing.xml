@@ -4,67 +4,42 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
+    android:padding="24dp"
     android:background="@drawable/gradient_background">
 
-    <FrameLayout
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:layout_marginBottom="32dp">
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/rounded_background"
-            android:backgroundTint="@color/white" />
-
-        <ImageView
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_gravity="center"
-            android:src="@drawable/ic_brain" />
-    </FrameLayout>
-
     <TextView
+        android:id="@+id/status_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Generating flashcards and quiz..."
-        android:textSize="18sp"
+        android:text="Processing your document..."
+        android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="@color/gray_900"
-        android:layout_marginBottom="8dp"
-        android:gravity="center" />
+        android:textColor="@color/white"
+        android:layout_marginBottom="24dp" />
 
-    <TextView
-        android:layout_width="280dp"
+    <EditText
+        android:id="@+id/subject_name_input"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Our AI is analyzing your material and creating study content"
-        android:textSize="14sp"
-        android:textColor="@color/gray_600"
-        android:gravity="center"
-        android:layout_marginBottom="48dp" />
+        android:hint="Enter Subject Name (e.g. Biology)"
+        android:background="@drawable/rounded_input_bg"
+        android:padding="16dp"
+        android:visibility="gone"
+        android:layout_marginBottom="24dp" />
 
-    <LinearLayout
+    <Button
+        android:id="@+id/save_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Create Flashcards"
+        android:backgroundTint="@color/white"
+        android:textColor="@color/primary_color"
+        android:visibility="gone" />
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
-
-        <View
-            android:layout_width="12dp"
-            android:layout_height="12dp"
-            android:background="@drawable/dot_animator"
-            android:layout_marginEnd="12dp" />
-
-        <View
-            android:layout_width="12dp"
-            android:layout_height="12dp"
-            android:background="@drawable/dot_animator"
-            android:layout_marginEnd="12dp" />
-
-        <View
-            android:layout_width="12dp"
-            android:layout_height="12dp"
-            android:background="@drawable/dot_animator" />
-    </LinearLayout>
+        android:indeterminateTint="@color/white" />
 
 </LinearLayout>

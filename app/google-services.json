@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "172165657064",
+    "project_id": "flashcardgenerator-7b640",
+    "storage_bucket": "flashcardgenerator-7b640.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:172165657064:android:97dea10ebf51a75262b45d",
+        "android_client_info": {
+          "package_name": "com.example.smartflashcard"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBWOoAet_A2mBV4Z3QFFtNA3N8ss3B0i_M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

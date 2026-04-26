@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
-    // alias(libs.plugins.google.services)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -42,9 +42,20 @@ dependencies {
     implementation(libs.material)
     implementation(libs.constraintlayout)
     
-    // Firebase - Commented out for now
-    // implementation(platform(libs.firebase.bom))
-    // implementation(libs.firebase.auth)
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+
+    // Room
+    implementation(libs.room.runtime)
+    annotationProcessor(libs.room.compiler)
+
+    // ML Kit (Camera/OCR)
+    implementation(libs.mlkit.text.recognition)
+
+    // Retrofit (AI API)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
 
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("androidx.recyclerview:recyclerview:1.3.2")

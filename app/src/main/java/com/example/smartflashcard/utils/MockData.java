@@ -10,10 +10,10 @@ public class MockData {
 
     public static List<Topic> getTopics() {
         List<Topic> topics = new ArrayList<>();
-        topics.add(new Topic("1", "Biology - Chapter 3", 24, 3, "2 days ago", true, 75));
-        topics.add(new Topic("2", "Mathematics - Algebra", 18, 2, "5 days ago", false, 45));
-        topics.add(new Topic("3", "History - World War II", 32, 4, "1 week ago", true, 90));
-        topics.add(new Topic("4", "Physics - Motion", 15, 2, "3 days ago", false, 30));
+        topics.add(new Topic("1", "Biology - Chapter 3", 24, 3, "2 days ago", true, 75, null));
+        topics.add(new Topic("2", "Mathematics - Algebra", 18, 2, "5 days ago", false, 45, null));
+        topics.add(new Topic("3", "History - World War II", 32, 4, "1 week ago", true, 90, null));
+        topics.add(new Topic("4", "Physics - Motion", 15, 2, "3 days ago", false, 30, null));
         return topics;
     }
 
