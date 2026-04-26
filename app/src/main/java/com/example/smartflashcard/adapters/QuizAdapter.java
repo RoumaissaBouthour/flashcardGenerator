@@ -1,5 +1,7 @@
 package com.example.smartflashcard.adapters;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.smartflashcard.R;
+import com.example.smartflashcard.activities.QuizActivity;
 import com.example.smartflashcard.models.Quiz;
 import java.util.List;
 
@@ -49,7 +52,8 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.QuizViewHolder
         }
 
         public void bind(Quiz quiz) {
-            titleTv.setText(quiz.getTitle());
+            Context context = itemView.getContext();
+            titleTv.setText(quiz.getTitle() != null ? quiz.getTitle() : "Topic Quiz");
             questionsTv.setText(quiz.getQuestions() + " questions");
             
             if (quiz.isCompleted()) {
@@ -62,6 +66,12 @@ public class QuizAdapter extends RecyclerView.Adapter<QuizAdapter.QuizViewHolder
                 scoreTv.setVisibility(View.GONE);
                 startBtn.setVisibility(View.VISIBLE);
             }
+
+            startBtn.setOnClickListener(v -> {
+                Intent intent = new Intent(context, QuizActivity.class);
+                intent.putExtra("topicId", quiz.getTopicId());
+                context.startActivity(intent);
+            });
         }
     }
 }

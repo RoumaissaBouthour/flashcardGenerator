@@ -1,15 +1,14 @@
 plugins {
     id 'com.android.application'
     id 'com.google.gms.google-services'
-    id 'kotlin-android'
 }
 
 android {
-    namespace 'com.example.flashcardgenerator'
+    namespace 'com.example.smartflashcard'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.example.flashcardgenerator"
+        applicationId "com.example.smartflashcard"
         minSdk 24
         targetSdk 34
         versionCode 1

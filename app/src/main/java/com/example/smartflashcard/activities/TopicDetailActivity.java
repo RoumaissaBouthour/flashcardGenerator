@@ -17,8 +17,11 @@ import com.example.smartflashcard.R;
 import com.example.smartflashcard.adapters.FlashcardAdapter;
 import com.example.smartflashcard.adapters.QuizAdapter;
 import com.example.smartflashcard.database.AppDatabase;
+import com.example.smartflashcard.models.Flashcard;
+import com.example.smartflashcard.models.Quiz;
 import com.example.smartflashcard.models.Topic;
-import com.example.smartflashcard.utils.MockData;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class TopicDetailActivity extends AppCompatActivity {
 
@@ -53,7 +56,6 @@ public class TopicDetailActivity extends AppCompatActivity {
         tabFlashcards = findViewById(R.id.tab_flashcards);
         tabQuizzes = findViewById(R.id.tab_quizzes);
         
-        // Find views within tabs
         tvFlashcards = (TextView) tabFlashcards.getChildAt(1);
         tvQuizzes = (TextView) tabQuizzes.getChildAt(1);
         ivFlashcards = (ImageView) tabFlashcards.getChildAt(0);
@@ -79,6 +81,12 @@ public class TopicDetailActivity extends AppCompatActivity {
         loadTopicData();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshData();
+    }
+
     private void switchTab(boolean toQuizzes) {
         if (isQuizzesTab == toQuizzes) return;
         isQuizzesTab = toQuizzes;
@@ -96,7 +104,6 @@ public class TopicDetailActivity extends AppCompatActivity {
             ivFlashcards.setColorFilter(getResources().getColor(R.color.gray_600));
             
             studyBtn.setVisibility(View.GONE);
-            recyclerView.setAdapter(new QuizAdapter(MockData.getQuizzes()));
         } else {
             tabFlashcards.setBackgroundResource(R.drawable.rounded_topic_card_bg);
             tabFlashcards.setElevation(dpToPx(2));
@@ -109,8 +116,8 @@ public class TopicDetailActivity extends AppCompatActivity {
             ivQuizzes.setColorFilter(getResources().getColor(R.color.gray_600));
             
             studyBtn.setVisibility(View.VISIBLE);
-            recyclerView.setAdapter(new FlashcardAdapter(MockData.getFlashcards()));
         }
+        refreshData();
     }
 
     private void showEditDialog() {
@@ -163,14 +170,24 @@ public class TopicDetailActivity extends AppCompatActivity {
                     topicTitleTv.setText(currentTopic.getTitle());
                     topicStatsTv.setText(currentTopic.getFlashcards() + " flashcards • " + currentTopic.getQuizzes() + " quizzes");
                 }
-                
-                // Set initial adapter
-                if (isQuizzesTab) {
-                    recyclerView.setAdapter(new QuizAdapter(MockData.getQuizzes()));
-                } else {
-                    recyclerView.setAdapter(new FlashcardAdapter(MockData.getFlashcards()));
-                }
+                refreshData();
             });
+        }).start();
+    }
+
+    private void refreshData() {
+        new Thread(() -> {
+            if (isQuizzesTab) {
+                List<Quiz> allQuizzes = AppDatabase.getInstance(this).quizDao().getQuizzesForTopic(topicId);
+                // Filter only headers (those with a title)
+                List<Quiz> quizHeaders = allQuizzes.stream()
+                        .filter(q -> q.getTitle() != null && !q.getTitle().isEmpty())
+                        .collect(Collectors.toList());
+                runOnUiThread(() -> recyclerView.setAdapter(new QuizAdapter(quizHeaders)));
+            } else {
+                List<Flashcard> flashcards = AppDatabase.getInstance(this).flashcardDao().getFlashcardsForTopic(topicId);
+                runOnUiThread(() -> recyclerView.setAdapter(new FlashcardAdapter(flashcards)));
+            }
         }).start();
     }
     

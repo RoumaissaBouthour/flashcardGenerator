@@ -6,10 +6,11 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.smartflashcard.R;
+import com.example.smartflashcard.database.AppDatabase;
 import com.example.smartflashcard.models.Flashcard;
-import com.example.smartflashcard.utils.MockData;
 import java.util.List;
 
 public class FlashcardStudyActivity extends AppCompatActivity {
@@ -30,7 +31,11 @@ public class FlashcardStudyActivity extends AppCompatActivity {
         setContentView(R.layout.activity_flashcard_study);
 
         topicId = getIntent().getStringExtra("topicId");
-        flashcards = MockData.getFlashcards();
+        if (topicId == null) {
+            Toast.makeText(this, "Topic ID missing", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         cardContentTv = findViewById(R.id.card_content);
         progressTv = findViewById(R.id.progress_tv);
@@ -40,8 +45,6 @@ public class FlashcardStudyActivity extends AppCompatActivity {
         backBtn = findViewById(R.id.back_btn);
         resetBtn = findViewById(R.id.reset_btn);
         progressBar = findViewById(R.id.progress_bar);
-
-        displayCard();
 
         cardContentTv.setOnClickListener(v -> flipCard());
         prevBtn.setOnClickListener(v -> previousCard());
@@ -55,9 +58,27 @@ public class FlashcardStudyActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
+
+        loadFlashcards();
+    }
+
+    private void loadFlashcards() {
+        new Thread(() -> {
+            flashcards = AppDatabase.getInstance(this).flashcardDao().getFlashcardsForTopic(topicId);
+            runOnUiThread(() -> {
+                if (flashcards == null || flashcards.isEmpty()) {
+                    Toast.makeText(this, "No flashcards found for this topic", Toast.LENGTH_SHORT).show();
+                    finish();
+                } else {
+                    displayCard();
+                }
+            });
+        }).start();
     }
 
     private void displayCard() {
+        if (flashcards == null || flashcards.isEmpty() || currentIndex >= flashcards.size()) return;
+
         Flashcard card = flashcards.get(currentIndex);
         cardContentTv.setText(isFlipped ? card.getAnswer() : card.getQuestion());
         progressTv.setText((currentIndex + 1) + " / " + flashcards.size());

@@ -26,7 +26,7 @@ public class ScanUploadActivity extends AppCompatActivity {
 
     private static final int REQUEST_CAMERA_PERMISSION = 100;
     private static final int REQUEST_IMAGE_CAPTURE = 101;
-    private static final int REQUEST_PICK_IMAGE = 102;
+    private static final int REQUEST_PICK_FILE = 102;
 
     private Button scanBtn, uploadBtn;
     private ImageButton backBtn;
@@ -44,7 +44,7 @@ public class ScanUploadActivity extends AppCompatActivity {
         backBtn.setOnClickListener(v -> finish());
 
         scanBtn.setOnClickListener(v -> checkCameraPermission());
-        uploadBtn.setOnClickListener(v -> openGallery());
+        uploadBtn.setOnClickListener(v -> openFilePicker());
     }
 
     private void checkCameraPermission() {
@@ -72,9 +72,19 @@ public class ScanUploadActivity extends AppCompatActivity {
         }
     }
 
-    private void openGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(intent, REQUEST_PICK_IMAGE);
+    private void openFilePicker() {
+        // Updated to support PDF and images
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");
+        String[] mimeTypes = {"image/*", "application/pdf"};
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        
+        try {
+            startActivityForResult(Intent.createChooser(intent, "Select File"), REQUEST_PICK_FILE);
+        } catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(this, "Please install a File Manager.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private File createImageFile() throws IOException {
@@ -100,16 +110,18 @@ public class ScanUploadActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            Uri imageUri = null;
+            Uri fileUri = null;
             if (requestCode == REQUEST_IMAGE_CAPTURE) {
-                imageUri = photoUri;
-            } else if (requestCode == REQUEST_PICK_IMAGE && data != null) {
-                imageUri = data.getData();
+                fileUri = photoUri;
+            } else if (requestCode == REQUEST_PICK_FILE && data != null) {
+                fileUri = data.getData();
             }
 
-            if (imageUri != null) {
+            if (fileUri != null) {
+                // If it's a PDF, we might need extra logic in ProcessingActivity
+                // For now, passing it as a URI
                 Intent intent = new Intent(this, ProcessingActivity.class);
-                intent.putExtra("imageUri", imageUri.toString());
+                intent.putExtra("imageUri", fileUri.toString());
                 startActivity(intent);
             }
         }

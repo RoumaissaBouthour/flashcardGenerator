@@ -9,11 +9,13 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.smartflashcard.R;
+import com.example.smartflashcard.database.AppDatabase;
 import com.example.smartflashcard.models.Quiz;
-import com.example.smartflashcard.utils.MockData;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class QuizActivity extends AppCompatActivity {
 
@@ -37,7 +39,11 @@ public class QuizActivity extends AppCompatActivity {
         setContentView(R.layout.activity_quiz);
 
         topicId = getIntent().getStringExtra("topicId");
-        questions = MockData.getQuizQuestions();
+        if (topicId == null) {
+            Toast.makeText(this, "Topic ID missing", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         questionTv = findViewById(R.id.question_tv);
         progressTv = findViewById(R.id.progress_tv);
@@ -49,17 +55,32 @@ public class QuizActivity extends AppCompatActivity {
         optionsContainer = findViewById(R.id.options_container);
         resultContainer = findViewById(R.id.result_container);
 
-        displayQuestion();
-
         nextBtn.setOnClickListener(v -> nextQuestion());
         backHeaderBtn.setOnClickListener(v -> finish());
         tryAgainBtn.setOnClickListener(v -> retakeQuiz());
-        backBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(QuizActivity.this, TopicDetailActivity.class);
-            intent.putExtra("topicId", topicId);
-            startActivity(intent);
-            finish();
-        });
+        backBtn.setOnClickListener(v -> finish());
+
+        loadQuizzes();
+    }
+
+    private void loadQuizzes() {
+        new Thread(() -> {
+            List<Quiz> allData = AppDatabase.getInstance(this).quizDao().getQuizzesForTopic(topicId);
+            
+            // Filter: Only keep items that have actual question text AND non-null options
+            questions = allData.stream()
+                    .filter(q -> q.getQuestion() != null && !q.getQuestion().isEmpty() && q.getOptions() != null)
+                    .collect(Collectors.toList());
+
+            runOnUiThread(() -> {
+                if (questions == null || questions.isEmpty()) {
+                    Toast.makeText(this, "No quiz questions found", Toast.LENGTH_SHORT).show();
+                    finish();
+                } else {
+                    displayQuestion();
+                }
+            });
+        }).start();
     }
 
     private void displayQuestion() {
@@ -67,6 +88,8 @@ public class QuizActivity extends AppCompatActivity {
             showResultScreen();
             return;
         }
+
+        if (questions == null || questions.isEmpty() || currentQuestion >= questions.size()) return;
 
         Quiz question = questions.get(currentQuestion);
         questionTv.setText(question.getQuestion());
@@ -76,19 +99,47 @@ public class QuizActivity extends AppCompatActivity {
         optionsContainer.removeAllViews();
         selectedAnswer = -1;
 
-        for (int i = 0; i < question.getOptions().length; i++) {
-            Button optionBtn = new Button(this);
-            optionBtn.setText(question.getOptions()[i]);
-            int finalI = i;
-            optionBtn.setOnClickListener(v -> selectedAnswer = finalI);
-            optionsContainer.addView(optionBtn);
+        String[] options = question.getOptions();
+        if (options != null) {
+            for (int i = 0; i < options.length; i++) {
+                // Manually create the button to avoid resource-based ClassCastException
+                Button optionBtn = new Button(this);
+                optionBtn.setText(options[i]);
+                optionBtn.setAllCaps(false);
+                
+                // Set layout params for margin
+                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+                params.setMargins(0, 0, 0, 20);
+                optionBtn.setLayoutParams(params);
+                
+                // Apply background safely
+                optionBtn.setBackgroundResource(R.drawable.rounded_input_bg);
+
+                int finalI = i;
+                optionBtn.setOnClickListener(v -> {
+                    selectedAnswer = finalI;
+                    // Update visual state of all buttons in container
+                    for (int j = 0; j < optionsContainer.getChildCount(); j++) {
+                        View child = optionsContainer.getChildAt(j);
+                        child.setAlpha(j == finalI ? 1.0f : 0.6f);
+                        child.setElevation(j == finalI ? 8.0f : 2.0f);
+                    }
+                });
+                optionsContainer.addView(optionBtn);
+            }
         }
 
         nextBtn.setText(currentQuestion == questions.size() - 1 ? R.string.finish_quiz : R.string.next_question);
     }
 
     private void nextQuestion() {
-        if (selectedAnswer == -1) return;
+        if (selectedAnswer == -1) {
+            Toast.makeText(this, "Please select an answer", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         Quiz question = questions.get(currentQuestion);
         if (selectedAnswer == question.getCorrectAnswer()) {
@@ -107,6 +158,10 @@ public class QuizActivity extends AppCompatActivity {
     private void showResultScreen() {
         optionsContainer.setVisibility(View.GONE);
         resultContainer.setVisibility(View.VISIBLE);
+        questionTv.setVisibility(View.GONE);
+        progressTv.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
+        nextBtn.setVisibility(View.GONE);
 
         int percentage = Math.round((score / (float) questions.size()) * 100);
         TextView scoreTV = findViewById(R.id.score_tv);
@@ -123,6 +178,10 @@ public class QuizActivity extends AppCompatActivity {
         showResult = false;
         optionsContainer.setVisibility(View.VISIBLE);
         resultContainer.setVisibility(View.GONE);
+        questionTv.setVisibility(View.VISIBLE);
+        progressTv.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
+        nextBtn.setVisibility(View.VISIBLE);
         displayQuestion();
     }
 }
