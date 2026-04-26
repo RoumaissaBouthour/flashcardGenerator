@@ -2,44 +2,66 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/tvTopicTitle"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Topic Title"
-        android:textSize="28sp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="16dp"
+        android:background="@color/white">
+
+        <ImageButton
+            android:id="@+id/back_btn"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_back"
+            android:background="@drawable/rounded_icon_btn_bg"
+            android:scaleType="centerInside"
+            android:contentDescription="Back" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Biology - Chapter 3"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/gray_900" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="24 flashcards • 3 quizzes"
+                android:textSize="12sp"
+                android:textColor="@color/gray_600"
+                android:layout_marginTop="4dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/study_btn"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="Start Study Session"
+        android:textSize="16sp"
         android:textStyle="bold"
-        android:layout_marginBottom="24dp"/>
-
-    <Button
-        android:id="@+id/btnStudyFlashcards"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Study Flashcards"
-        android:layout_marginBottom="12dp"/>
-
-    <Button
-        android:id="@+id/btnTakeQuiz"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Take Quiz"
-        android:layout_marginBottom="12dp"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Flashcards in this topic:"
-        android:textSize="18sp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="8dp"/>
+        android:textColor="@color/white"
+        android:background="@drawable/rounded_button_bg"
+        android:layout_margin="16dp" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvFlashcards"
+        android:id="@+id/flashcards_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        android:padding="16dp" />
 
 </LinearLayout>
