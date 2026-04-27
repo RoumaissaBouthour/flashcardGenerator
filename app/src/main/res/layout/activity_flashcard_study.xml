@@ -117,7 +117,7 @@
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:textColor="@color/gray_700"
-                android:background="@color/white"
+                android:background="@drawable/rounded_button_bg"
                 android:layout_marginEnd="8dp" />
 
             <Button

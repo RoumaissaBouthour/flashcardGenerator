@@ -2,15 +2,18 @@ package com.example.smartflashcard.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.example.smartflashcard.R;
 import com.example.smartflashcard.database.AppDatabase;
 import com.example.smartflashcard.models.Quiz;
@@ -30,7 +33,8 @@ public class QuizActivity extends AppCompatActivity {
     private Button nextBtn, tryAgainBtn, backBtn;
     private ImageButton backHeaderBtn;
     private ProgressBar progressBar;
-    private LinearLayout optionsContainer;
+    private RecyclerView optionsRecyclerView;
+    private OptionsAdapter optionsAdapter;
     private FrameLayout resultContainer;
 
     @Override
@@ -52,8 +56,10 @@ public class QuizActivity extends AppCompatActivity {
         backBtn = findViewById(R.id.back_btn);
         backHeaderBtn = findViewById(R.id.back_header_btn);
         progressBar = findViewById(R.id.progress_bar);
-        optionsContainer = findViewById(R.id.options_container);
         resultContainer = findViewById(R.id.result_container);
+        optionsRecyclerView = findViewById(R.id.options_recycler_view);
+
+        optionsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         nextBtn.setOnClickListener(v -> nextQuestion());
         backHeaderBtn.setOnClickListener(v -> finish());
@@ -66,8 +72,7 @@ public class QuizActivity extends AppCompatActivity {
     private void loadQuizzes() {
         new Thread(() -> {
             List<Quiz> allData = AppDatabase.getInstance(this).quizDao().getQuizzesForTopic(topicId);
-            
-            // Filter: Only keep items that have actual question text AND non-null options
+
             questions = allData.stream()
                     .filter(q -> q.getQuestion() != null && !q.getQuestion().isEmpty() && q.getOptions() != null)
                     .collect(Collectors.toList());
@@ -96,40 +101,14 @@ public class QuizActivity extends AppCompatActivity {
         progressTv.setText(getString(R.string.quiz_progress, currentQuestion + 1, questions.size()));
         progressBar.setProgress((int) (((currentQuestion + 1) / (float) questions.size()) * 100));
 
-        optionsContainer.removeAllViews();
         selectedAnswer = -1;
 
         String[] options = question.getOptions();
         if (options != null) {
-            for (int i = 0; i < options.length; i++) {
-                // Manually create the button to avoid resource-based ClassCastException
-                Button optionBtn = new Button(this);
-                optionBtn.setText(options[i]);
-                optionBtn.setAllCaps(false);
-                
-                // Set layout params for margin
-                LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                );
-                params.setMargins(0, 0, 0, 20);
-                optionBtn.setLayoutParams(params);
-                
-                // Apply background safely
-                optionBtn.setBackgroundResource(R.drawable.rounded_input_bg);
-
-                int finalI = i;
-                optionBtn.setOnClickListener(v -> {
-                    selectedAnswer = finalI;
-                    // Update visual state of all buttons in container
-                    for (int j = 0; j < optionsContainer.getChildCount(); j++) {
-                        View child = optionsContainer.getChildAt(j);
-                        child.setAlpha(j == finalI ? 1.0f : 0.6f);
-                        child.setElevation(j == finalI ? 8.0f : 2.0f);
-                    }
-                });
-                optionsContainer.addView(optionBtn);
-            }
+            optionsAdapter = new OptionsAdapter(options, index -> {
+                selectedAnswer = index;
+            });
+            optionsRecyclerView.setAdapter(optionsAdapter);
         }
 
         nextBtn.setText(currentQuestion == questions.size() - 1 ? R.string.finish_quiz : R.string.next_question);
@@ -156,7 +135,7 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     private void showResultScreen() {
-        optionsContainer.setVisibility(View.GONE);
+        optionsRecyclerView.setVisibility(View.GONE);
         resultContainer.setVisibility(View.VISIBLE);
         questionTv.setVisibility(View.GONE);
         progressTv.setVisibility(View.GONE);
@@ -176,12 +155,72 @@ public class QuizActivity extends AppCompatActivity {
         selectedAnswer = -1;
         score = 0;
         showResult = false;
-        optionsContainer.setVisibility(View.VISIBLE);
+        optionsRecyclerView.setVisibility(View.VISIBLE);
         resultContainer.setVisibility(View.GONE);
         questionTv.setVisibility(View.VISIBLE);
         progressTv.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.VISIBLE);
         nextBtn.setVisibility(View.VISIBLE);
         displayQuestion();
+    }
+
+
+    private static class OptionsAdapter extends RecyclerView.Adapter<OptionsAdapter.OptionViewHolder> {
+
+        interface OnOptionSelectedListener {
+            void onSelected(int index);
+        }
+
+        private final String[] options;
+        private final OnOptionSelectedListener listener;
+        private int selectedIndex = -1;
+
+        OptionsAdapter(String[] options, OnOptionSelectedListener listener) {
+            this.options = options;
+            this.listener = listener;
+        }
+
+        @Override
+        public OptionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            Button btn = new Button(parent.getContext());
+            btn.setAllCaps(false);
+            btn.setTextSize(14f);
+            RecyclerView.LayoutParams params = new RecyclerView.LayoutParams(
+                    RecyclerView.LayoutParams.MATCH_PARENT,
+                    RecyclerView.LayoutParams.WRAP_CONTENT
+            );
+            params.setMargins(0, 0, 0, 20);
+            btn.setLayoutParams(params);
+            btn.setBackgroundResource(R.drawable.rounded_input_bg);
+            return new OptionViewHolder(btn);
+        }
+
+        @Override
+        public void onBindViewHolder(OptionViewHolder holder, int position) {
+            holder.button.setText(options[position]);
+            holder.button.setAlpha(selectedIndex == position ? 1.0f : 0.7f);
+            holder.button.setElevation(selectedIndex == position ? 8.0f : 2.0f);
+
+            holder.button.setOnClickListener(v -> {
+                int previous = selectedIndex;
+                selectedIndex = holder.getAdapterPosition();
+                if (previous != -1) notifyItemChanged(previous);
+                notifyItemChanged(selectedIndex);
+                listener.onSelected(selectedIndex);
+            });
+        }
+
+        @Override
+        public int getItemCount() {
+            return options.length;
+        }
+
+        static class OptionViewHolder extends RecyclerView.ViewHolder {
+            Button button;
+            OptionViewHolder(Button btn) {
+                super(btn);
+                this.button = btn;
+            }
+        }
     }
 }
